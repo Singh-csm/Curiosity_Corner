@@ -25,7 +25,7 @@ const sellerSehema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        emum: ['Male', 'Female'],
+        emum: ['Male', 'Female', "other"],
         required: true,
         trim: true
     }

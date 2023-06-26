@@ -6,10 +6,12 @@ const productSchema = new mongoose.Schema(
     title: {
       type: String,
       trim: true,
+      required: true,
     },
     price: {
         type: Number,
         trim: true,
+        required: true,
       },
     desc: {
       type: String,
@@ -18,6 +20,7 @@ const productSchema = new mongoose.Schema(
     category: {
         type: Number,
         trim: true,
+        required: true,
       },
     imgURL: {
       type: String,
