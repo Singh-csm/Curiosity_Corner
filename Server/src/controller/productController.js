@@ -30,19 +30,58 @@ export const createProduct = async function (req, res) {
 };
 
 
-// route handler function to get products -- 
+// route handler function to get products by title name -- 
 export const searchProductByName = async function (req, res) {
     try {
-        const { searchText, page } = req.params.search - text;
+        const { searchText, page, sortBy } = req.params;
 
         // if page number is not provided then assuming as first page --
         if (!page) page = 0;
-        const products = await productModel.find({ title: { $regex: `/${searchText}/`, $options: i } }).skip(page * 20).limit(20);
+
+        // getting sort field data --
+        if (!sortBy) sortBy = 'lowToHigh';
+        let sortNo = -1;
+        if (sortBy === 'lowToHight') sortNo = 1;
+
+        // searching products by making a db call --
+        const products = await productModel.find({ title: { $regex: `/${searchText}/`, $options: i } }).sort({ price: sortNo }).skip(page * 20).limit(20);
 
         // if no products found with search text --
         if (products.length === 0 && page === 0) return res.status(404).send({ status: false, message: 'No product found with this title' });
         if (products.length === 0 && page > 1) return res.status(404).send({ status: false, message: 'No more results found with this title' });
-        
+
+        // sending response after 
+        res.status(200).send({ stutus: true, data: products });
+    } catch (error) {
+        res.status(500).send({ status: false, message: error.message });
+    };
+};
+
+
+// route handler function to get products by category -- 
+export const searchProductByCategory = async function (req, res) {
+    try {
+        const { category, minPrice, maxPrice, sortBy, page } = req.params;
+
+        // if page number is not provided then assuming as first page --
+        if (!page) page = 0;
+
+        // if price range not given then assuming minimum and maximum price --
+        if (!minPrice) minPrice = -Infinity;
+        if (!maxPrice) maxPrice = Infinity;
+
+        // getting sort field data --
+        if (!sortBy) sortBy = 'lowToHigh';
+        let sortNo = -1;
+        if (sortBy === 'lowToHight') sortNo = 1;
+
+        // searching products by making a db call --
+        const products = await productModel.find({ category: category, $price: { $gte: minPrice, $lte: maxPrice } }).sort({ price: sortNo }).skip(page * 20).limit(20);
+
+        // if no products found with search text --
+        if (products.length === 0 && page === 0) return res.status(404).send({ status: false, message: 'No product found with this title' });
+        if (products.length === 0 && page > 1) return res.status(404).send({ status: false, message: 'No more results found with this title' });
+
         // sending response after 
         res.status(200).send({ stutus: true, data: products });
     } catch (error) {
